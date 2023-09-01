@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To do </title>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.css' integrity='sha512-KOWhIs2d8WrPgR4lTaFgxI35LLOp5PRki/DxQvb7mlP29YZ5iJ5v8tiLWF7JLk5nDBlgPP1gHzw96cZ77oD7zQ==' crossorigin='anonymous'/>
+    <style>
+        html{
+            background-color: #264653;
+            min-height: 95vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        main{
+            background-color: #2A9D8F;
+            padding: 3mm;
+            min-height: 70vh;
+            border-radius: .5rem;
+            max-width: 600px;
+
+        }
+        label{
+            display: flex;
+            flex-direction: row;
+
+        }
+        input{
+            position: relative;
+            flex-grow: 1;
+            padding: 2mm;
+            border-radius: .5rem;
+            border: none;
+            &:focus{
+                outline: none;
+            }
+
+        }
+        label i{
+            padding: 2mm;
+        }
+        label i{
+            background-color: #F4A261;
+            border-radius: .5rem;
+            margin: 0 1mm;
+            &:hover{
+                background-color: #f18f3f;
+            }
+        }
+        ul{
+            padding: 3mm;
+            list-style: none;
+        }
+        ul li p{
+            display: inline;
+        }
+        ul li{
+            background-color: #E9C46A;
+            margin: 4mm 0;
+            padding: 3mm;
+            border-radius: .5rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 200px;
+            @media (min-width: 700px) {
+             min-width: 500px;   
+            }
+        }
+        ul li i{
+            margin-left: 5mm;
+            color: #E76F51;
+            text-align: center;
+            &:hover{
+                color: #ae2b0a;
+                cursor: pointer;
+            }
+        }
+        ul li div{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+        ul li div i{
+            margin: 0 2mm 0 0;
+            color: #2A9D8F;
+        }
+        .fa-check{
+            color: #2A9D8F;
+        }
+        .fa-xmark{
+            color: #ae2b0a;
+            &:hover{
+                color: #2A9D8F;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <label for="">
+        <input type="text" class="text" placeholder="Add new task">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+        </label>
+        <ul>
+            <!-- Data from JS -->
+
+        </ul>
+    </main>
+
+    <script>
+    //Selecting Elements
+        const taskList = document.querySelector("main ul");
+    //Selecting Source
+        let data;
+        if(localStorage.getItem("data")){
+            data = JSON.parse(localStorage.getItem("data"));
+        }else{
+            data = [];
+        }
+    //Functions
+        const functions = {
+            addNew(e){
+                let taskDetail = e.target.previousElementSibling.value;
+                
+                data.push({task: taskDetail, status: 0});
+                localStorage.setItem("data", JSON.stringify(data));
+                const creatingLi = document.createElement("li");
+                creatingLi.innerHTML = `
+                <div>
+                    <i class="fa fa-xmark" aria-hidden="true" onclick="functions.changingStatus(this)"></i>
+                    <p>${taskDetail}</p>
+                </div>
+                <i class="fa fa-trash" aria-hidden="true" onclick="functions.delete(this)"></i>
+                `;
+                 taskList.appendChild(creatingLi);
+
+                 e.target.previousElementSibling.value = null;
+
+            },
+            showData(data){
+                const status = data.status == true ? "fa-check" : "fa-xmark";
+                const creatingLi = document.createElement("li");
+                creatingLi.innerHTML = `
+                    <div>
+                        <i class="fa ${status}" aria-hidden="true" onclick="functions.changingStatus(this)"></i>
+                        <p>${data.task}</p>
+                    </div>
+                    <i class="fa fa-trash" aria-hidden="true" onclick="functions.delete(this)"></i>
+           `;
+           taskList.appendChild(creatingLi);
+            
+            },
+            delete(thisItem){
+                thisItem.parentElement.style.display = "none";
+                let index = data.findIndex(x => x.task === thisItem.parentElement.querySelector("div p").innerHTML);
+                data.splice(index, 1);
+                localStorage.setItem("data", JSON.stringify(data));
+            },
+            changingStatus(thisItem){
+                thisItem.classList.replace("fa-xmark", "fa-check");
+                let index = data.findIndex(x => x.task === thisItem.parentElement.querySelector("div p").innerHTML);
+                data[index].status = 1;
+                console.log(data);
+                localStorage.setItem("data", JSON.stringify(data));
+            }
+        }
+    // Get data from localstorage
+        for(let i = 0; i < data.length; i++){
+            functions.showData(data[i]);
+        }
+        document.querySelector("label i").addEventListener("click", functions.addNew);
+        const checkboxElements = document.querySelectorAll("main ul li div i");
+        for (let i = 0; i < checkboxElements.length; i++) {
+            checkboxElements[i].addEventListener("click", functions.changingStatus);
+            
+        }
+    </script>
+</body>
+</html>
